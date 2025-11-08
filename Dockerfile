@@ -24,11 +24,11 @@ COPY app ./app
 COPY models ./models
 COPY scripts ./scripts
 
-# Garante permissão de execução nos scripts
+# Permissão de execução
 RUN chmod +x /app/scripts/*.sh
 
-# Cria o volume persistente (caso não exista)
+# Cria volume persistente (usado pelo RunPod)
 VOLUME ["/workspace"]
 
-# 🔁 Comando padrão: executa boot_env.sh ou outro via variável START_CMD
+# 🔁 Comando padrão com fallback para variável START_CMD
 CMD ["bash", "-c", "${START_CMD:-/app/scripts/boot_env.sh}"]
