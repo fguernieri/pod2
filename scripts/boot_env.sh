@@ -16,6 +16,8 @@ cd /app || {
     echo "❌ Erro: diretório /app não encontrado."
     exit 1
 }
+mkdir -p /app/inputs /app/outputs /app/temp
+
 
 echo "📂 Estrutura atual:"
 ls -la /app/app
