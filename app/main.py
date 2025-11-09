@@ -1,15 +1,17 @@
 import os
-import uuid
-import glob
-import random
-import json
-import tempfile
-import shutil
-import time
-import math
+os.environ["IMAGEIO_FFMPEG_EXE"] = "/usr/bin/ffmpeg"
+
+from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+import subprocess
+import whisper
+from whisper.utils import get_writer
+from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips
+import uuid, json, tempfile, shutil, time, math, random
 from threading import Thread
 from pathlib import Path
-import subprocess
+
 
 # ======================
 # 🎬 CONFIGURAÇÃO GERAL
