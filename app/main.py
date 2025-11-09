@@ -60,7 +60,7 @@ def healthcheck():
         "status": "ok",
         "message": "API FFmpeg + Whisper ativa 🚀",
         "routes": ["/upload", "/ffmpeg", "/ffmpeg_ken", "/ffmpeg_burn", "/whisper"]
-
+          }
 # ========================
 # 🧠 ENDPOINT: /whisper
 # ========================
