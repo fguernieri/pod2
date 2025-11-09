@@ -1,33 +1,60 @@
 #!/bin/bash
 echo "🚀 Iniciando ambiente..."
 
-mkdir -p /workspace
+# ============================
+# ⚙️ Correção de ambiente CUDA
+# ============================
+export PYTHONHOME="/usr"
+export PYTHONPATH="/usr/local/lib/python3.10/dist-packages:/app/app:/app:$PYTHONPATH"
+export DEBIAN_FRONTEND=noninteractive
+export TZ=Etc/UTC
 
-# Copia o app pro volume persistente se estiver vazio
-if [ -z "$(ls -A /workspace 2>/dev/null)" ]; then
-    echo "🧩 Workspace vazio — copiando código da imagem..."
-    cp -r /app/* /workspace/
-else
-    echo "✅ Workspace já possui arquivos — não é necessário copiar."
-fi
+# ===============================
+# 📁 Estrutura e sincronização
+# ===============================
+mkdir -p /workspace/output /workspace/uploads /workspace/temp
+chmod -R 777 /workspace
 
-# Usa /app direto (onde o código existe de fato)
-cd /app || {
-    echo "❌ Erro: diretório /app não encontrado."
+echo "🔄 Sincronizando /app → /workspace..."
+rsync -a --exclude 'output' --exclude 'uploads' /app/ /workspace/
+
+# Verifica se o app existe
+if [ ! -d "/workspace/app" ]; then
+    echo "❌ Erro: diretório /workspace/app não encontrado."
     exit 1
-}
-mkdir -p /app/inputs /app/outputs /app/temp
-
-
-echo "📂 Estrutura atual:"
-ls -la /app/app
-
-# Cria __init__.py se faltar (necessário para FastAPI importar o pacote)
-if [ ! -f /app/app/__init__.py ]; then
-    echo "⚙️ Criando __init__.py..."
-    touch /app/app/__init__.py
 fi
 
-# Inicia o FastAPI corretamente
+echo "📂 Estrutura de /workspace/app:"
+ls -la /workspace/app
+
+# =======================================
+# 🧩 Cria __init__.py se estiver faltando
+# =======================================
+if [ ! -f /workspace/app/__init__.py ]; then
+    echo "⚙️ Criando __init__.py..."
+    touch /workspace/app/__init__.py
+fi
+
+# ======================================
+# 🧠 Verifica dependências críticas
+# ======================================
+echo ""
+echo "🔍 Verificando dependências principais..."
+python3 - <<'EOF'
+import importlib
+deps = ["fastapi", "uvicorn", "moviepy.editor", "torch", "whisper"]
+for lib in deps:
+    try:
+        importlib.import_module(lib)
+        print(f"✅ {lib} OK")
+    except ImportError:
+        print(f"❌ {lib} faltando!")
+EOF
+echo ""
+
+# ======================================
+# 🚀 Inicialização da API FastAPI
+# ======================================
+cd /workspace/app
 echo "🚀 Iniciando aplicação na porta 8090..."
-uvicorn app.main:app --host 0.0.0.0 --port 8090
+python3 -m uvicorn main:app --host 0.0.0.0 --port 8090
