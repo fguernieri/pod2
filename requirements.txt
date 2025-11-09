@@ -1,11 +1,16 @@
 fastapi
 uvicorn
+aiofiles
+
 ffmpeg-python
 moviepy
+imageio[ffmpeg]
+
 openai-whisper
 torch
 torchaudio
 torchvision
+
 opencv-python
 numpy
 requests
